@@ -1,67 +1,54 @@
 (function () {
-  function setupCategoryNavigation() {
-    const links = document.querySelectorAll('.categorias a');
+  function carregarProdutos(url, atualizarHistorico = true) {
     const grid = document.querySelector('.product-grid');
-    const nav = document.querySelector('.categorias');
+    if (!grid) return Promise.resolve();
 
-    if (!links.length || !grid || !nav) return;
+    return fetch(url, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Não foi possível carregar os produtos.');
+        return response.text();
+      })
+      .then((html) => {
+        const documentHtml = new DOMParser().parseFromString(html, 'text/html');
+        const newGrid = documentHtml.querySelector('.product-grid');
 
-    // Limpa o mecanismo antigo de restauração de scroll.
-    sessionStorage.removeItem('catalogScrollPosition');
+        if (!newGrid) throw new Error('Produtos não encontrados.');
 
-    links.forEach((link) => {
-      link.addEventListener('click', async (event) => {
-        event.preventDefault();
+        // Guarda exatamente a posição atual e altera somente os produtos.
+        const scrollPosition = window.scrollY;
+        grid.innerHTML = newGrid.innerHTML;
+        window.scrollTo(0, scrollPosition);
 
-        const url = link.href;
-
-        try {
-          const response = await fetch(url, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-          });
-
-          if (!response.ok) throw new Error('Não foi possível carregar a categoria.');
-
-          const html = await response.text();
-          const documentHtml = new DOMParser().parseFromString(html, 'text/html');
-          const newGrid = documentHtml.querySelector('.product-grid');
-
-          if (!newGrid) throw new Error('Produtos não encontrados.');
-
-          grid.innerHTML = newGrid.innerHTML;
-
-          links.forEach((item) => item.classList.remove('active'));
-          link.classList.add('active');
-
+        if (atualizarHistorico) {
           history.pushState({}, '', url);
-
-          // Reativa os botões "Adicionar" dos produtos que acabaram de entrar no DOM.
-          document.dispatchEvent(new Event('DOMContentLoaded'));
-
-          nav.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } catch (error) {
-          // Se o AJAX falhar, mantém o comportamento normal do link.
-          window.location.href = url;
         }
+
+        // Atualiza o estado visual da categoria.
+        const categoria = new URL(url, window.location.origin).searchParams.get('cat');
+        document.querySelectorAll('.categorias a').forEach((link) => {
+          const linkCategoria = new URL(link.href, window.location.origin).searchParams.get('cat');
+          link.classList.toggle('active', linkCategoria === categoria);
+        });
+
+        // Reativa os botões dos produtos que foram inseridos.
+        if (typeof setupProductCards === 'function') {
+          setupProductCards();
+        }
+      });
+  }
+
+  function setupCategoryNavigation() {
+    document.querySelectorAll('.categorias a').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        void carregarProdutos(link.href);
       });
     });
 
-    window.addEventListener('popstate', async () => {
-      try {
-        const response = await fetch(window.location.href);
-        if (!response.ok) return;
-
-        const html = await response.text();
-        const documentHtml = new DOMParser().parseFromString(html, 'text/html');
-        const newGrid = documentHtml.querySelector('.product-grid');
-        if (!newGrid) return;
-
-        grid.innerHTML = newGrid.innerHTML;
-        document.dispatchEvent(new Event('DOMContentLoaded'));
-        nav.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } catch (error) {
-        window.location.reload();
-      }
+    window.addEventListener('popstate', () => {
+      void carregarProdutos(window.location.href, false);
     });
   }
 

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block 'titulo' %}Sua sacola{% endblock 'titulo' %}
+
+{% block 'conteudo' %}
+<main class="container cart-main" data-whatsapp="5511999999999">
+  <h1 class="cart-title">Sua sacola</h1>
+  <div id="cart-page" class="cart-page">
+    <div id="cart-items" class="cart-items"></div>
+    <aside class="resumo">
+      <h3>Resumo</h3>
+      <div class="linha"><span>Subtotal</span><span id="sum-subtotal">R$ 0,00</span></div>
+      <div class="linha"><span>Frete</span><span id="sum-shipping">Grátis</span></div>
+      <div class="linha total"><span>Total</span><span id="sum-total">R$ 0,00</span></div>
+      <button type="button" id="checkout-btn" class="checkout-btn">Finalizar via WhatsApp</button>
+      <a href="{% url 'home' %}" class="continue-btn">Continuar comprando</a>
+    </aside>
+  </div>
+  <div id="cart-empty" class="cart-empty" hidden>
+    <p>Sua sacola está vazia.</p>
+    <a href="{% url 'home' %}" class="continue-btn">Ver catálogo</a>
+  </div>
+</main>
+{% endblock 'conteudo' %}

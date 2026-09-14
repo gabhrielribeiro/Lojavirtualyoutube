@@ -84,7 +84,6 @@
     let changed = false;
 
     const updatedItems = items.map((item) => {
-      // Também converte os itens salvos pela versão anterior do carrinho.
       const productId = String(item.id || '').replaceAll('-', '_');
       const product = products.get(productId);
       if (!product) return item;
@@ -268,10 +267,28 @@
     });
   }
 
+  function setupCategoryScroll() {
+    document.querySelectorAll('.categorias a').forEach((link) => {
+      link.addEventListener('click', () => {
+        sessionStorage.setItem('catalogScrollPosition', String(window.scrollY));
+      });
+    });
+
+    const scrollPosition = sessionStorage.getItem('catalogScrollPosition');
+
+    if (scrollPosition !== null) {
+      sessionStorage.removeItem('catalogScrollPosition');
+      window.addEventListener('load', () => {
+        window.scrollTo(0, Number(scrollPosition));
+      }, { once: true });
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     setupProductPage();
     setupProductCards();
     setupCartPage();
+    setupCategoryScroll();
   });
 })();

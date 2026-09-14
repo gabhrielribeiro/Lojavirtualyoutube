@@ -3,6 +3,8 @@
     const grid = document.querySelector('.product-grid');
     if (!grid) return Promise.resolve();
 
+    const scrollPosition = window.scrollY;
+
     return fetch(url, {
       headers: { 'X-Requested-With': 'XMLHttpRequest' },
     })
@@ -16,8 +18,7 @@
 
         if (!newGrid) throw new Error('Produtos não encontrados.');
 
-        // Guarda exatamente a posição atual e altera somente os produtos.
-        const scrollPosition = window.scrollY;
+        // Troca somente os produtos e mantém exatamente a posição da página.
         grid.innerHTML = newGrid.innerHTML;
         window.scrollTo(0, scrollPosition);
 
@@ -25,30 +26,57 @@
           history.pushState({}, '', url);
         }
 
-        // Atualiza o estado visual da categoria.
-        const categoria = new URL(url, window.location.origin).searchParams.get('cat');
+        const targetUrl = new URL(url, window.location.href);
+        const categoria = targetUrl.searchParams.get('cat') || 'Todos';
+
         document.querySelectorAll('.categorias a').forEach((link) => {
-          const linkCategoria = new URL(link.href, window.location.origin).searchParams.get('cat');
+          const linkCategoria = new URL(link.href, window.location.href).searchParams.get('cat') || 'Todos';
           link.classList.toggle('active', linkCategoria === categoria);
         });
 
-        // Reativa os botões dos produtos que foram inseridos.
-        if (typeof setupProductCards === 'function') {
-          setupProductCards();
-        }
+        // Reativa os botões dos produtos inseridos.
+        document.dispatchEvent(new CustomEvent('catalog:updated'));
       });
+  }
+
+  function navegar(url) {
+    carregarProdutos(url).catch(() => {
+      window.location.href = url;
+    });
   }
 
   function setupCategoryNavigation() {
     document.querySelectorAll('.categorias a').forEach((link) => {
       link.addEventListener('click', (event) => {
         event.preventDefault();
-        void carregarProdutos(link.href);
+        navegar(link.href);
       });
     });
 
+    const form = document.querySelector('.search');
+
+    if (form) {
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const input = form.querySelector('input[name="q"]');
+        const url = new URL(form.action || window.location.href, window.location.href);
+        const busca = input ? input.value.trim() : '';
+
+        if (busca) {
+          url.searchParams.set('q', busca);
+        } else {
+          url.searchParams.delete('q');
+        }
+
+        navegar(url.href);
+      });
+    }
+
     window.addEventListener('popstate', () => {
-      void carregarProdutos(window.location.href, false);
+      carregarProdutos(window.location.href, false).catch(() => {
+        window.location.reload();
+      });
     });
   }
 

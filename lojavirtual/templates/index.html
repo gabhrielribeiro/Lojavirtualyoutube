@@ -21,14 +21,36 @@
   </div>
 
   <nav class="categorias" id="categorias">
-    <a href="?cat=Todos#categorias" class="active">Todos</a>
-    <a href="?cat=Vestuário#categorias">Vestuário</a>
-    <a href="?cat=Casa#categorias">Casa</a>
-    <a href="?cat=Acessórios#categorias">Acessórios</a>
-    <a href="?cat=Beleza#categorias">Beleza</a>
-  </nav>
+
+    <a href="?cat=Todos#categorias"
+       {% if request.GET.cat == 'Todos' %}class="active"{% endif %}>
+        Todos
+    </a>
+
+    <a href="?cat=Vestuário#categorias"
+       {% if request.GET.cat == 'Vestuário' %}class="active"{% endif %}>
+        Vestuário
+    </a>
+
+    <a href="?cat=Casa#categorias"
+       {% if request.GET.cat == 'Casa' %}class="active"{% endif %}>
+        Casa
+    </a>
+
+    <a href="?cat=Acessórios#categorias"
+       {% if request.GET.cat == 'Acessórios' %}class="active"{% endif %}>
+        Acessórios
+    </a>
+
+    <a href="?cat=Beleza#categorias"
+       {% if request.GET.cat == 'Beleza' %}class="active"{% endif %}>
+        Beleza
+    </a>
+
+</nav>
 
   <div class="product-grid">
+    {% if lista_produto %}
     {% for produto in lista_produto %}
     <article class="product-card"
              data-id="{{produto.slug}}"
@@ -49,7 +71,11 @@
       </a>
       <button class="btn-add" data-add type="button">Adicionar</button>
     </article>
+
     {% endfor %}
+    {% else %}
+    <p>Nenhum produto encontrado.</p>
+    {% endif %}
   </div>
 </section>
 

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from . models import Produto
+from . models import Produto, Categoria
 
 
 
@@ -12,7 +12,7 @@ def home(request):
 
     lista_produto = Produto.objects.all()
 
-    if categoria:
+    if categoria and categoria != 'Todos':
         lista_produto = lista_produto.filter(
             categoria__titulo=categoria
         )
@@ -21,6 +21,8 @@ def home(request):
         lista_produto = lista_produto.filter(
             titulo__icontains=busca
         )
+
+    
 
     return render(request, 'index.html', {
         'lista_produto': lista_produto

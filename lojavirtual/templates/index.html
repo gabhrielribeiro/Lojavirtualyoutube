@@ -1,76 +1,56 @@
-
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block 'titulo' %} Maison Atelier {% endblock 'titulo' %}
 
-
 {% block 'conteudo' %}
 
+<section class="hero">
+  <img src="{% static 'img/hero.png' %}" alt="" class="hero-img" />
+</section>
 
- <!-- ================= HERO ================= -->
-  <section class="hero">
-    <img src="{% static 'img/hero.png' %}" alt="" class="hero-img" />
-    
-  </section>
-
-  <!-- ================= FILTROS ================= -->
-  <section class="container section">
-    <div class="section-head">
-      <div>
-        <p class="eyebrow">Catálogo</p>
-        <h2>Peças em destaque</h2>
-      </div>
-      <form method="get" action="{% url 'home'%}" class="search">
-        <input type="search" name="q" placeholder="Buscar peças..." />
-      </form>
+<section class="container section">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Catálogo</p>
+      <h2>Peças em destaque</h2>
     </div>
+    <form method="get" action="{% url 'home'%}" class="search">
+      <input type="search" name="q" placeholder="Buscar peças..." />
+    </form>
+  </div>
 
-    <nav class="categorias">
-      <a href="?cat=Todos" class="active">Todos</a>
-      <a href="?cat=Vestuário">Vestuário</a>
-      <a href="?cat=Casa">Casa</a>
-      <a href="?cat=Acessórios">Acessórios</a>
-      <a href="?cat=Beleza">Beleza</a>
-    </nav>
+  <nav class="categorias" id="categorias">
+    <a href="?cat=Todos#categorias" class="active">Todos</a>
+    <a href="?cat=Vestuário#categorias">Vestuário</a>
+    <a href="?cat=Casa#categorias">Casa</a>
+    <a href="?cat=Acessórios#categorias">Acessórios</a>
+    <a href="?cat=Beleza#categorias">Beleza</a>
+  </nav>
 
-    <!--
-      ============================================================
-       GRID DE PRODUTOS
-       No Django: {% for product in products %} ... {% endfor %}
-       Mantenha os atributos data-* no <article> — é deles que o JS
-       lê o produto pra adicionar na sacola.
-      ============================================================
-    -->
-    <div class="product-grid">
-
-      {% for produto in lista_produto %}
-      <article class="product-card"
-              data-id="{{produto.slug}}"
-         data-name="{{produto.titulo}}"
-         data-price="{{produto.preco}}"
-         data-image="{{produto.foto.url}}"
-         data-category="Vestuário">
-        
-        <a href="{% url 'produto' produto.slug %}" class="card-link">
-          <div class="product-image">
-            <img src="{{produto.foto.url}}" alt="Essence Tee" loading="lazy" />
-            <span class="badge">Novo</span>
-          </div>
-          <div class="product-info">
-            <p class="eyebrow">Vestuário</p>
-            <h3>{{produto.titulo}}</h3>
-            <p class="price">{{produto.preco}}</p>
-          </div>
-        </a>
-        <button class="btn-add" data-add type="button">Adicionar</button>
-      </article>
-      {% endfor %}
-      
-
-    </div>
-  </section>
-
+  <div class="product-grid">
+    {% for produto in lista_produto %}
+    <article class="product-card"
+             data-id="{{produto.slug}}"
+             data-name="{{produto.titulo}}"
+             data-price="{{produto.preco}}"
+             data-image="{{produto.foto.url}}"
+             data-category="Vestuário">
+      <a href="{% url 'produto' produto.slug %}" class="card-link">
+        <div class="product-image">
+          <img src="{{produto.foto.url}}" alt="Essence Tee" loading="lazy" />
+          <span class="badge">Novo</span>
+        </div>
+        <div class="product-info">
+          <p class="eyebrow">Vestuário</p>
+          <h3>{{produto.titulo}}</h3>
+          <p class="price">{{produto.preco}}</p>
+        </div>
+      </a>
+      <button class="btn-add" data-add type="button">Adicionar</button>
+    </article>
+    {% endfor %}
+  </div>
+</section>
 
 {% endblock 'conteudo' %}
